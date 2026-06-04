@@ -1,7 +1,8 @@
 (function() {
-  var root      = document.getElementById("portfolio-root");
-  var hub       = document.getElementById("pf-hub");
-  var closeHint = document.getElementById("pf-close-hint");
+  var root = document.getElementById("portfolio-root");
+  var hub  = document.getElementById("pf-hub");
+
+  if (!root || !hub) return;
 
   var items = [
     { id: "pf-ni-about",    angle: -90  },
@@ -31,9 +32,10 @@
     root.classList.toggle("nav-active");
   });
 
-  closeHint.addEventListener("click", function() {
-    closeNav();
-  });
+  var closeHint = document.getElementById("pf-close-hint");
+  if (closeHint) {
+    closeHint.addEventListener("click", function() { closeNav(); });
+  }
 
   root.querySelectorAll("[data-pfpanel]").forEach(function(link) {
     link.addEventListener("click", function(e) {
