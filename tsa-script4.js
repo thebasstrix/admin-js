@@ -30,6 +30,11 @@
     root.querySelectorAll(".pf-panel").forEach(function(p) { p.classList.remove("open"); });
   }
 
+  function openPanel(slug) {
+    var panel = document.getElementById("pf-panel-" + slug);
+    if (panel) panel.classList.add("open");
+  }
+
   hub.addEventListener("click", function() {
     root.classList.add("nav-active");
   });
@@ -44,7 +49,7 @@
       closeNav();
       var id = link.getAttribute("data-pfpanel");
       var slug = id.replace("pf-panel-", "");
-      history.pushState({ panel: slug }, "", "/" + slug);
+      location.hash = slug;
       setTimeout(function() { document.getElementById(id).classList.add("open"); }, 200);
     });
   });
@@ -53,7 +58,7 @@
     btn.addEventListener("click", function() {
       var id = btn.getAttribute("data-pfclose");
       document.getElementById(id).classList.remove("open");
-      history.pushState({}, "", "/");
+      history.pushState({}, "", window.location.pathname);
     });
   });
 
@@ -61,7 +66,7 @@
     panel.addEventListener("click", function(e) {
       if (e.target === panel) {
         panel.classList.remove("open");
-        history.pushState({}, "", "/");
+        history.pushState({}, "", window.location.pathname);
       }
     });
   });
@@ -70,25 +75,20 @@
     if (e.key === "Escape") {
       closeNav();
       closeAllPanels();
-      history.pushState({}, "", "/");
+      history.pushState({}, "", window.location.pathname);
     }
   });
 
-  window.addEventListener("popstate", function(e) {
+  window.addEventListener("hashchange", function() {
+    var slug = location.hash.replace("#", "");
     closeAllPanels();
-    if (e.state && e.state.panel) {
-      var panel = document.getElementById("pf-panel-" + e.state.panel);
-      if (panel) panel.classList.add("open");
-    }
+    if (slug) openPanel(slug);
   });
 
-  // Open correct panel on page load if URL has a slug
+  // Open correct panel on page load if hash is present
   (function() {
-    var slug = window.location.pathname.replace(/^\//, "").replace(/\/$/, "");
-    if (slug) {
-      var panel = document.getElementById("pf-panel-" + slug);
-      if (panel) panel.classList.add("open");
-    }
+    var slug = location.hash.replace("#", "");
+    if (slug) openPanel(slug);
   })();
 
   var bookingForm = document.getElementById("booking-form");
