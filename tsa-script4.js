@@ -25,6 +25,7 @@
   window.addEventListener("resize", positionItems);
 
   function closeNav() { root.classList.remove("nav-active"); }
+  function openNav()  { root.classList.add("nav-active"); }
 
   function closeAllPanels() {
     root.querySelectorAll(".pf-panel").forEach(function(p) { p.classList.remove("open"); });
@@ -35,8 +36,14 @@
     if (panel) panel.classList.add("open");
   }
 
+  function closePanel(id) {
+    document.getElementById(id).classList.remove("open");
+    history.pushState({}, "", window.location.pathname);
+    openNav();
+  }
+
   hub.addEventListener("click", function() {
-    root.classList.add("nav-active");
+    openNav();
   });
 
   closeHint.addEventListener("click", function() {
@@ -56,26 +63,31 @@
 
   root.querySelectorAll("[data-pfclose]").forEach(function(btn) {
     btn.addEventListener("click", function() {
-      var id = btn.getAttribute("data-pfclose");
-      document.getElementById(id).classList.remove("open");
-      history.pushState({}, "", window.location.pathname);
+      closePanel(btn.getAttribute("data-pfclose"));
     });
   });
 
   root.querySelectorAll(".pf-panel").forEach(function(panel) {
     panel.addEventListener("click", function(e) {
       if (e.target === panel) {
-        panel.classList.remove("open");
-        history.pushState({}, "", window.location.pathname);
+        closePanel(panel.id);
       }
     });
   });
 
   document.addEventListener("keydown", function(e) {
     if (e.key === "Escape") {
-      closeNav();
-      closeAllPanels();
-      history.pushState({}, "", window.location.pathname);
+      var anyOpen = false;
+      root.querySelectorAll(".pf-panel").forEach(function(p) {
+        if (p.classList.contains("open")) anyOpen = true;
+      });
+      if (anyOpen) {
+        closeAllPanels();
+        history.pushState({}, "", window.location.pathname);
+        openNav();
+      } else {
+        closeNav();
+      }
     }
   });
 
