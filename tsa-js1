@@ -115,6 +115,12 @@ document.addEventListener('keydown',function(e){
   }
 });
 
+// Wire up EPK toggle buttons via JS rather than onclick attributes
+var btnEpk=document.getElementById('btn-epk');
+var btnTech=document.getElementById('btn-tech');
+if(btnEpk)btnEpk.addEventListener('click',function(){epkSwitch('epk');});
+if(btnTech)btnTech.addEventListener('click',function(){epkSwitch('tech');});
+
 var epkPanel=document.getElementById('pf-panel-epk');
 var epkIframe=document.getElementById('pf-epk-iframe');
 if(epkPanel&&epkIframe){
