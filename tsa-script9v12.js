@@ -1,6 +1,8 @@
+<script>
 (function() {
-  var root = document.getElementById("portfolio-root");
-  var hub  = document.getElementById("pf-hub");
+  var root      = document.getElementById("portfolio-root");
+  var hub       = document.getElementById("pf-hub");
+  var closeHint = document.getElementById("pf-close-hint");
 
   var items = [
     { id: "pf-ni-about",    angle: -90  },
@@ -11,7 +13,7 @@
   ];
 
   function positionItems() {
-    var r = Math.max(240, Math.min(Math.min(window.innerWidth, window.innerHeight) * 0.38, 400));
+    var r = Math.max(220, Math.min(Math.min(window.innerWidth, window.innerHeight) * 0.34, 380));
     items.forEach(function(item) {
       var el = document.getElementById(item.id);
       if (!el) return;
@@ -26,31 +28,12 @@
   function closeNav() { root.classList.remove("nav-active"); }
   function openNav()  { root.classList.add("nav-active"); }
 
-  function closeAllPanels() {
-    root.querySelectorAll(".pf-panel").forEach(function(p) { p.classList.remove("open"); });
-  }
-
-  function openPanel(slug) {
-    var panel = document.getElementById("pf-panel-" + slug);
-    if (panel) panel.classList.add("open");
-  }
-
-  var closingPanel = false;
-
-  function closePanel(id) {
-    closingPanel = true;
-    document.getElementById(id).classList.remove("open");
-    history.pushState({}, "", window.location.pathname);
-    closingPanel = false;
-    openNav();
-  }
-
   hub.addEventListener("click", function() {
-    if (root.classList.contains("nav-active")) {
-      closeNav();
-    } else {
-      openNav();
-    }
+    root.classList.toggle("nav-active");
+  });
+
+  closeHint.addEventListener("click", function() {
+    closeNav();
   });
 
   root.querySelectorAll("[data-pfpanel]").forEach(function(link) {
@@ -58,23 +41,23 @@
       e.preventDefault();
       closeNav();
       var id = link.getAttribute("data-pfpanel");
-      var slug = id.replace("pf-panel-", "");
-      closingPanel = true;
-      location.hash = slug;
-      closingPanel = false;
       setTimeout(function() { document.getElementById(id).classList.add("open"); }, 200);
     });
   });
 
   root.querySelectorAll("[data-pfclose]").forEach(function(btn) {
     btn.addEventListener("click", function() {
-      closePanel(btn.getAttribute("data-pfclose"));
+      document.getElementById(btn.getAttribute("data-pfclose")).classList.remove("open");
+      openNav();
     });
   });
 
   root.querySelectorAll(".pf-panel").forEach(function(panel) {
     panel.addEventListener("click", function(e) {
-      if (e.target === panel) closePanel(panel.id);
+      if (e.target === panel) {
+        panel.classList.remove("open");
+        openNav();
+      }
     });
   });
 
@@ -85,26 +68,13 @@
         if (p.classList.contains("open")) anyOpen = true;
       });
       if (anyOpen) {
-        closeAllPanels();
-        history.pushState({}, "", window.location.pathname);
+        root.querySelectorAll(".pf-panel").forEach(function(p) { p.classList.remove("open"); });
         openNav();
       } else {
         closeNav();
       }
     }
   });
-
-  window.addEventListener("hashchange", function() {
-    if (closingPanel) return;
-    var slug = location.hash.replace("#", "");
-    closeAllPanels();
-    if (slug) openPanel(slug);
-  });
-
-  (function() {
-    var slug = location.hash.replace("#", "");
-    if (slug) openPanel(slug);
-  })();
 
   var bookingForm = document.getElementById("booking-form");
   if (bookingForm) {
@@ -130,10 +100,10 @@
       });
     });
 
-    var radioInputs = bookingForm.querySelectorAll('input[type="radio"]');
-    radioInputs.forEach(function(radio) {
+    var radioLabels = bookingForm.querySelectorAll('input[type="radio"]');
+    radioLabels.forEach(function(radio) {
       radio.addEventListener("change", function() {
-        radioInputs.forEach(function(r) {
+        radioLabels.forEach(function(r) {
           var lbl = bookingForm.querySelector('label[for="' + r.id + '"]');
           if (lbl) {
             lbl.style.color = "rgba(255,255,255,0.5)";
@@ -151,9 +121,5 @@
     });
   }
 
-  document.addEventListener("click", function(e) {
-    var trigger = e.target.closest(".epk-accordion-trigger");
-    if (trigger) trigger.parentElement.classList.toggle("open");
-  });
-
 })();
+</script>
