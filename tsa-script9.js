@@ -1,7 +1,6 @@
 (function() {
   var root      = document.getElementById("portfolio-root");
   var hub       = document.getElementById("pf-hub");
-  var closeHint = document.getElementById("pf-close-hint");
 
   var items = [
     { id: "pf-ni-about",    angle: -90  },
@@ -46,12 +45,13 @@
     openNav();
   }
 
+  // Toggle nav on logo click
   hub.addEventListener("click", function() {
-    openNav();
-  });
-
-  closeHint.addEventListener("click", function() {
-    closeNav();
+    if (root.classList.contains("nav-active")) {
+      closeNav();
+    } else {
+      openNav();
+    }
   });
 
   root.querySelectorAll("[data-pfpanel]").forEach(function(link) {
