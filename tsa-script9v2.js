@@ -45,7 +45,6 @@
     openNav();
   }
 
-  // Toggle nav on logo click
   hub.addEventListener("click", function() {
     if (root.classList.contains("nav-active")) {
       closeNav();
@@ -109,14 +108,6 @@
     if (slug) openPanel(slug);
   })();
 
-// EPK accordion
-document.querySelectorAll(".epk-accordion-trigger").forEach(function(trigger) {
-  trigger.addEventListener("click", function() {
-    var accordion = trigger.parentElement;
-    accordion.classList.toggle("open");
-  });
-});
-
   var bookingForm = document.getElementById("booking-form");
   if (bookingForm) {
     bookingForm.addEventListener("submit", function(e) {
@@ -162,12 +153,12 @@ document.querySelectorAll(".epk-accordion-trigger").forEach(function(trigger) {
     });
   }
 
-})();
-
-// EPK accordion
-document.querySelectorAll(".epk-accordion-trigger").forEach(function(trigger) {
-  trigger.addEventListener("click", function() {
-    var accordion = trigger.parentElement;
-    accordion.classList.toggle("open");
+  // EPK accordion — use event delegation so it works even though panel is hidden on load
+  document.addEventListener("click", function(e) {
+    var trigger = e.target.closest(".epk-accordion-trigger");
+    if (trigger) {
+      trigger.parentElement.classList.toggle("open");
+    }
   });
-});
+
+})();
