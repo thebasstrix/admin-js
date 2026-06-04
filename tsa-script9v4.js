@@ -1,6 +1,7 @@
-(function() {
-  var root      = document.getElementById("portfolio-root");
-  var hub       = document.getElementById("pf-hub");
+document.addEventListener("DOMContentLoaded", function() {
+
+  var root = document.getElementById("portfolio-root");
+  var hub  = document.getElementById("pf-hub");
 
   var items = [
     { id: "pf-ni-about",    angle: -90  },
@@ -153,7 +154,6 @@
     });
   }
 
-  // EPK accordion — use event delegation so it works even though panel is hidden on load
   document.addEventListener("click", function(e) {
     var trigger = e.target.closest(".epk-accordion-trigger");
     if (trigger) {
@@ -161,4 +161,4 @@
     }
   });
 
-})();
+});
