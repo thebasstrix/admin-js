@@ -38,8 +38,8 @@ var hashToPanel={
 
 var items=[{id:'pf-ni-about',angle:-90},{id:'pf-ni-music',angle:-18},{id:'pf-ni-dates',angle:54},{id:'pf-ni-epk',angle:126},{id:'pf-ni-bookings',angle:198}];
 function positionItems(){
-var r=Math.max(220,Math.min(Math.min(window.innerWidth,window.innerHeight)*0.34,380));
-items.forEach(function(item){var el=document.getElementById(item.id);if(!el)return;var rad=item.angle*Math.PI/180;el.style.left='calc(50% + '+(r*Math.cos(rad))+'px)';el.style.top='calc(50% + '+(r*Math.sin(rad))+'px)';});
+  var r=Math.max(130,Math.min(Math.min(window.innerWidth,window.innerHeight)*0.32,380));
+  items.forEach(function(item){var el=document.getElementById(item.id);if(!el)return;var rad=item.angle*Math.PI/180;el.style.left='calc(50% + '+(r*Math.cos(rad))+'px)';el.style.top='calc(50% + '+(r*Math.sin(rad))+'px)';});
 }
 positionItems();
 window.addEventListener('resize',positionItems);
@@ -115,12 +115,13 @@ document.addEventListener('keydown',function(e){
   }
 });
 
-// Wire up EPK toggle buttons via JS rather than onclick attributes
+// Wire up EPK toggle buttons
 var btnEpk=document.getElementById('btn-epk');
 var btnTech=document.getElementById('btn-tech');
 if(btnEpk)btnEpk.addEventListener('click',function(){epkSwitch('epk');});
 if(btnTech)btnTech.addEventListener('click',function(){epkSwitch('tech');});
 
+// Lazy-load EPK iframe only when panel opens
 var epkPanel=document.getElementById('pf-panel-epk');
 var epkIframe=document.getElementById('pf-epk-iframe');
 if(epkPanel&&epkIframe){
@@ -136,8 +137,8 @@ if(epkPanel&&epkIframe){
 
 var bf=document.getElementById('booking-form');
 if(bf){
-bf.addEventListener('submit',function(e){e.preventDefault();var st=document.getElementById('pf-form-status');fetch('https://formspree.io/f/xnjyqzwe',{method:'POST',body:new FormData(bf),headers:{'Accept':'application/json'}}).then(function(r){if(r.ok){st.textContent="Enquiry sent — we'll be in touch soon.";st.style.display='block';bf.reset();}else{st.textContent='Something went wrong. Please try again.';st.style.display='block';}}).catch(function(){st.textContent='Something went wrong. Please try again.';st.style.display='block';});});
-var rl=bf.querySelectorAll('input[type="radio"]');
-rl.forEach(function(radio){radio.addEventListener('change',function(){rl.forEach(function(r){var l=bf.querySelector('label[for="'+r.id+'"]');if(l){l.style.color='rgba(255,255,255,0.5)';l.style.borderColor='rgba(255,255,255,0.12)';l.style.background='transparent';}});var s=bf.querySelector('label[for="'+this.id+'"]');if(s){s.style.color='#c9a84c';s.style.borderColor='rgba(201,168,76,0.7)';s.style.background='rgba(201,168,76,0.08)';}});});
+  bf.addEventListener('submit',function(e){e.preventDefault();var st=document.getElementById('pf-form-status');fetch('https://formspree.io/f/xnjyqzwe',{method:'POST',body:new FormData(bf),headers:{'Accept':'application/json'}}).then(function(r){if(r.ok){st.textContent="Enquiry sent — we'll be in touch soon.";st.style.display='block';bf.reset();}else{st.textContent='Something went wrong. Please try again.';st.style.display='block';}}).catch(function(){st.textContent='Something went wrong. Please try again.';st.style.display='block';});});
+  var rl=bf.querySelectorAll('input[type="radio"]');
+  rl.forEach(function(radio){radio.addEventListener('change',function(){rl.forEach(function(r){var l=bf.querySelector('label[for="'+r.id+'"]');if(l){l.style.color='rgba(255,255,255,0.5)';l.style.borderColor='rgba(255,255,255,0.12)';l.style.background='transparent';}});var s=bf.querySelector('label[for="'+this.id+'"]');if(s){s.style.color='#c9a84c';s.style.borderColor='rgba(201,168,76,0.7)';s.style.background='rgba(201,168,76,0.08)';}});});
 }
 },100);
