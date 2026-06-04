@@ -1,3 +1,28 @@
+var epkUrls={
+  epk:'https://od.lk/s/NzFfMzE0MzE4OTJf/Electronic%20Press%20Kit%202026%20-%20Twelve%20Step%20Audio.pdf',
+  tech:'https://od.lk/s/NzFfMzE0MzIwMTZf/Technical%20Rider%202026%20-%20Twelve%20Step%20Audio.pdf'
+};
+var epkDownloadUrls={
+  epk:'https://od.lk/d/NzFfMzE0MzE4OTJf/Electronic%20Press%20Kit%202026%20-%20Twelve%20Step%20Audio.pdf',
+  tech:'https://od.lk/d/NzFfMzE0MzIwMTZf/Technical%20Rider%202026%20-%20Twelve%20Step%20Audio.pdf'
+};
+var epkTitles={epk:'Electronic Press Kit',tech:'Technical Rider'};
+
+function epkSwitch(type){
+  var iframe=document.getElementById('pf-epk-iframe');
+  var title=document.getElementById('pf-epk-title');
+  var download=document.getElementById('btn-download');
+  var btnEpk=document.getElementById('btn-epk');
+  var btnTech=document.getElementById('btn-tech');
+  if(!iframe)return;
+  iframe.src=epkUrls[type];
+  if(title)title.textContent=epkTitles[type];
+  if(download)download.href=epkDownloadUrls[type];
+  [btnEpk,btnTech].forEach(function(b){if(b){b.style.color='rgba(255,255,255,0.5)';b.style.borderColor='rgba(201,168,76,0.4)';}});
+  var active=type==='epk'?btnEpk:btnTech;
+  if(active){active.style.color='#c9a84c';active.style.borderColor='rgba(201,168,76,0.8)';}
+}
+
 setTimeout(function(){
 var root=document.getElementById('portfolio-root');
 var hub=document.getElementById('pf-hub');
@@ -90,14 +115,13 @@ document.addEventListener('keydown',function(e){
   }
 });
 
-// Lazy-load EPK iframe only when panel opens
 var epkPanel=document.getElementById('pf-panel-epk');
 var epkIframe=document.getElementById('pf-epk-iframe');
 if(epkPanel&&epkIframe){
   var epkLoaded=false;
   var epkObserver=new MutationObserver(function(){
     if(epkPanel.classList.contains('open')&&!epkLoaded){
-      epkIframe.src=epkIframe.getAttribute('data-src');
+      epkIframe.src=epkUrls.epk;
       epkLoaded=true;
     }
   });
@@ -110,31 +134,4 @@ bf.addEventListener('submit',function(e){e.preventDefault();var st=document.getE
 var rl=bf.querySelectorAll('input[type="radio"]');
 rl.forEach(function(radio){radio.addEventListener('change',function(){rl.forEach(function(r){var l=bf.querySelector('label[for="'+r.id+'"]');if(l){l.style.color='rgba(255,255,255,0.5)';l.style.borderColor='rgba(255,255,255,0.12)';l.style.background='transparent';}});var s=bf.querySelector('label[for="'+this.id+'"]');if(s){s.style.color='#c9a84c';s.style.borderColor='rgba(201,168,76,0.7)';s.style.background='rgba(201,168,76,0.08)';}});});
 }
-
-var epkUrls={
-  epk:'https://od.lk/s/NzFfMzE0MzE4OTJf/Electronic%20Press%20Kit%202026%20-%20Twelve%20Step%20Audio.pdf',
-  tech:'https://od.lk/s/NzFfMzE0MzIwMTZf/Technical%20Rider%202026%20-%20Twelve%20Step%20Audio.pdf'
-};
-var epkDownloadUrls={
-  epk:'https://od.lk/d/NzFfMzE0MzE4OTJf/Electronic%20Press%20Kit%202026%20-%20Twelve%20Step%20Audio.pdf',
-  tech:'https://od.lk/d/NzFfMzE0MzIwMTZf/Technical%20Rider%202026%20-%20Twelve%20Step%20Audio.pdf'
-};
-var epkTitles={epk:'Electronic Press Kit',tech:'Technical Rider'};
-
-function epkSwitch(type){
-  var iframe=document.getElementById('pf-epk-iframe');
-  var title=document.getElementById('pf-epk-title');
-  var download=document.getElementById('btn-download');
-  var btnEpk=document.getElementById('btn-epk');
-  var btnTech=document.getElementById('btn-tech');
-  if(!iframe)return;
-  iframe.src=epkUrls[type];
-  if(title)title.textContent=epkTitles[type];
-  if(download)download.href=epkDownloadUrls[type];
-  // Active state
-  [btnEpk,btnTech].forEach(function(b){if(b){b.style.color='rgba(255,255,255,0.5)';b.style.borderColor='rgba(201,168,76,0.4)';}});
-  var active=type==='epk'?btnEpk:btnTech;
-  if(active){active.style.color='#c9a84c';active.style.borderColor='rgba(201,168,76,0.8)';}
-}
-
 },100);
