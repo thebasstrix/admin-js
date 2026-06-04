@@ -36,9 +36,13 @@
     if (panel) panel.classList.add("open");
   }
 
+  var closingPanel = false;
+
   function closePanel(id) {
+    closingPanel = true;
     document.getElementById(id).classList.remove("open");
     history.pushState({}, "", window.location.pathname);
+    closingPanel = false;
     openNav();
   }
 
@@ -56,7 +60,9 @@
       closeNav();
       var id = link.getAttribute("data-pfpanel");
       var slug = id.replace("pf-panel-", "");
+      closingPanel = true;
       location.hash = slug;
+      closingPanel = false;
       setTimeout(function() { document.getElementById(id).classList.add("open"); }, 200);
     });
   });
@@ -92,9 +98,12 @@
   });
 
   window.addEventListener("hashchange", function() {
+    if (closingPanel) return;
     var slug = location.hash.replace("#", "");
     closeAllPanels();
-    if (slug) openPanel(slug);
+    if (slug) {
+      openPanel(slug);
+    }
   });
 
   // Open correct panel on page load if hash is present
