@@ -109,6 +109,14 @@
     if (slug) openPanel(slug);
   })();
 
+// EPK accordion
+document.querySelectorAll(".epk-accordion-trigger").forEach(function(trigger) {
+  trigger.addEventListener("click", function() {
+    var accordion = trigger.parentElement;
+    accordion.classList.toggle("open");
+  });
+});
+
   var bookingForm = document.getElementById("booking-form");
   if (bookingForm) {
     bookingForm.addEventListener("submit", function(e) {
@@ -155,3 +163,11 @@
   }
 
 })();
+
+// EPK accordion
+document.querySelectorAll(".epk-accordion-trigger").forEach(function(trigger) {
+  trigger.addEventListener("click", function() {
+    var accordion = trigger.parentElement;
+    accordion.classList.toggle("open");
+  });
+});
