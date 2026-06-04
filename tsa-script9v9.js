@@ -153,9 +153,12 @@
     });
   }
 
+  // EPK accordion — use event delegation so it works even though panel is hidden on load
   document.addEventListener("click", function(e) {
     var trigger = e.target.closest(".epk-accordion-trigger");
-    if (trigger) trigger.parentElement.classList.toggle("open");
+    if (trigger) {
+      trigger.parentElement.classList.toggle("open");
+    }
   });
 
 })();
