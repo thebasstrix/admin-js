@@ -1,113 +1,179 @@
-setTimeout(function(){
-var root=document.getElementById('portfolio-root');
-var hub=document.getElementById('pf-hub');
-if(!root||!hub)return;
-
-var hashToPanel={
-  'about':'pf-panel-about',
-  'music':'pf-panel-music',
-  'dates':'pf-panel-dates',
-  'epk':'pf-panel-epk',
-  'bookings':'pf-panel-bookings'
+// PDF.js loader
+var epkScript=document.createElement('script');
+epkScript.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+epkScript.onload=function(){
+  pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 };
+document.head.appendChild(epkScript);
 
-var items=[{id:'pf-ni-about',angle:-90},{id:'pf-ni-music',angle:-18},{id:'pf-ni-dates',angle:54},{id:'pf-ni-epk',angle:126},{id:'pf-ni-bookings',angle:198}];
-function positionItems(){
-var r=Math.max(220,Math.min(Math.min(window.innerWidth,window.innerHeight)*0.34,380));
-items.forEach(function(item){var el=document.getElementById(item.id);if(!el)return;var rad=item.angle*Math.PI/180;el.style.left='calc(50% + '+(r*Math.cos(rad))+'px)';el.style.top='calc(50% + '+(r*Math.sin(rad))+'px)';});
+var epkPdf=null;
+var epkPageNum=1;
+var epkRendering=false;
+
+function epkRenderPage(num){
+  if(!epkPdf)return;
+  epkRendering=true;
+  epkPdf.getPage(num).then(function(page){
+    var canvas=document.getElementById('pf-epk-canvas');
+    var ctx=canvas.getContext('2d');
+    var containerWidth=canvas.parentElement.clientWidth-64;
+    var viewport=page.getViewport({scale:1});
+    var scale=containerWidth/viewport.width;
+    var scaledViewport=page.getViewport({scale:scale});
+    canvas.width=scaledViewport.width;
+    canvas.height=scaledViewport.height;
+    page.render({canvasContext:ctx,viewport:scaledViewport}).promise.then(function(){
+      epkRendering=false;
+      var el=document.getElementById('pf-epk-pages');
+      if(el)el.textContent='Page '+num+' of '+epkPdf.numPages;
+    });
+  });
 }
-positionItems();
-window.addEventListener('resize',positionItems);
 
-function closeAllPanels(){root.querySelectorAll('.pf-panel').forEach(function(p){p.classList.remove('open');});}
-function closeNav(){root.classList.remove('nav-active');}
-function openNav(){root.classList.add('nav-active');}
+function epkChangePage(delta){
+  if(!epkPdf||epkRendering)return;
+  var newPage=epkPageNum+delta;
+  if(newPage<1||newPage>epkPdf.numPages)return;
+  epkPageNum=newPage;
+  epkRenderPage(epkPageNum);
+}
 
-function openPanel(panelId,pushHash){
-  closeAllPanels();
-  closeNav();
-  var panel=document.getElementById(panelId);
-  if(!panel)return;
-  panel.classList.add('open');
-  if(pushHash!==false){
-    var hash=panel.getAttribute('data-pfhash');
-    if(hash)history.pushState(null,null,'#'+hash);
+function epkLoad(){
+  if(epkPdf){epkRenderPage(epkPageNum);return;}
+  var url='https://od.lk/s/NzFfMzE0MzE4OTJf/Electronic%20Press%20Kit%202026%20-%20Twelve%20Step%20Audio.pdf';
+  pdfjsLib.getDocument(url).promise.then(function(pdf){
+    epkPdf=pdf;
+    epkPageNum=1;
+    epkRenderPage(1);
+  }).catch(function(){
+    var canvas=document.getElementById('pf-epk-canvas');
+    if(canvas){
+      var ctx=canvas.getContext('2d');
+      canvas.width=400;canvas.height=100;
+      ctx.fillStyle='rgba(255,255,255,0.4)';
+      ctx.font='14px Poppins,sans-serif';
+      ctx.fillText('Unable to load preview. Please use the download link.',20,50);
+    }
+  });
+}
+
+setTimeout(function(){
+  var root=document.getElementById('portfolio-root');
+  var hub=document.getElementById('pf-hub');
+  if(!root||!hub)return;
+
+  var hashToPanel={
+    'about':'pf-panel-about',
+    'music':'pf-panel-music',
+    'dates':'pf-panel-dates',
+    'epk':'pf-panel-epk',
+    'bookings':'pf-panel-bookings'
+  };
+
+  var items=[{id:'pf-ni-about',angle:-90},{id:'pf-ni-music',angle:-18},{id:'pf-ni-dates',angle:54},{id:'pf-ni-epk',angle:126},{id:'pf-ni-bookings',angle:198}];
+  function positionItems(){
+    var r=Math.max(220,Math.min(Math.min(window.innerWidth,window.innerHeight)*0.34,380));
+    items.forEach(function(item){var el=document.getElementById(item.id);if(!el)return;var rad=item.angle*Math.PI/180;el.style.left='calc(50% + '+(r*Math.cos(rad))+'px)';el.style.top='calc(50% + '+(r*Math.sin(rad))+'px)';});
   }
-}
+  positionItems();
+  window.addEventListener('resize',positionItems);
 
-function closePanelAndNav(panelId){
-  document.getElementById(panelId).classList.remove('open');
-  history.pushState(null,null,window.location.pathname+window.location.search);
-  openNav();
-}
+  function closeAllPanels(){root.querySelectorAll('.pf-panel').forEach(function(p){p.classList.remove('open');});}
+  function closeNav(){root.classList.remove('nav-active');}
+  function openNav(){root.classList.add('nav-active');}
 
-function handleHash(){
-  var hash=window.location.hash.replace('#','');
-  if(hash&&hashToPanel[hash]){openPanel(hashToPanel[hash],false);}
-}
-handleHash();
-
-window.addEventListener('popstate',function(){
-  var hash=window.location.hash.replace('#','');
-  if(hash&&hashToPanel[hash]){openPanel(hashToPanel[hash],false);}
-  else{closeAllPanels();openNav();}
-});
-
-hub.addEventListener('click',function(){root.classList.toggle('nav-active');});
-
-var ch=document.getElementById('pf-close-hint');
-if(ch)ch.addEventListener('click',function(){closeNav();});
-
-root.querySelectorAll('[data-pfpanel]').forEach(function(link){
-  link.addEventListener('click',function(e){
-    e.preventDefault();
-    var id=link.getAttribute('data-pfpanel');
+  function openPanel(panelId,pushHash){
+    closeAllPanels();
     closeNav();
-    setTimeout(function(){openPanel(id);},200);
-  });
-});
-
-root.querySelectorAll('[data-pfclose]').forEach(function(btn){
-  btn.addEventListener('click',function(){closePanelAndNav(btn.getAttribute('data-pfclose'));});
-});
-
-root.querySelectorAll('.pf-panel').forEach(function(panel){
-  panel.addEventListener('click',function(e){
-    if(e.target===panel){
-      panel.classList.remove('open');
-      history.pushState(null,null,window.location.pathname+window.location.search);
-      openNav();
+    var panel=document.getElementById(panelId);
+    if(!panel)return;
+    panel.classList.add('open');
+    if(pushHash!==false){
+      var hash=panel.getAttribute('data-pfhash');
+      if(hash)history.pushState(null,null,'#'+hash);
     }
-  });
-});
-
-document.addEventListener('keydown',function(e){
-  if(e.key==='Escape'){
-    var anyOpen=false;
-    root.querySelectorAll('.pf-panel').forEach(function(p){if(p.classList.contains('open'))anyOpen=true;});
-    if(anyOpen){closeAllPanels();history.pushState(null,null,window.location.pathname+window.location.search);openNav();}
-    else{closeNav();}
   }
-});
 
-// Lazy-load EPK iframe only when panel opens
-var epkPanel=document.getElementById('pf-panel-epk');
-var epkIframe=document.getElementById('pf-epk-iframe');
-if(epkPanel&&epkIframe){
-  var epkLoaded=false;
-  var epkObserver=new MutationObserver(function(){
-    if(epkPanel.classList.contains('open')&&!epkLoaded){
-      epkIframe.src=epkIframe.getAttribute('data-src');
-      epkLoaded=true;
+  function closePanelAndNav(panelId){
+    document.getElementById(panelId).classList.remove('open');
+    history.pushState(null,null,window.location.pathname+window.location.search);
+    openNav();
+  }
+
+  function handleHash(){
+    var hash=window.location.hash.replace('#','');
+    if(hash&&hashToPanel[hash]){openPanel(hashToPanel[hash],false);}
+  }
+  handleHash();
+
+  window.addEventListener('popstate',function(){
+    var hash=window.location.hash.replace('#','');
+    if(hash&&hashToPanel[hash]){openPanel(hashToPanel[hash],false);}
+    else{closeAllPanels();openNav();}
+  });
+
+  hub.addEventListener('click',function(){root.classList.toggle('nav-active');});
+
+  var ch=document.getElementById('pf-close-hint');
+  if(ch)ch.addEventListener('click',function(){closeNav();});
+
+  root.querySelectorAll('[data-pfpanel]').forEach(function(link){
+    link.addEventListener('click',function(e){
+      e.preventDefault();
+      var id=link.getAttribute('data-pfpanel');
+      closeNav();
+      setTimeout(function(){openPanel(id);},200);
+    });
+  });
+
+  root.querySelectorAll('[data-pfclose]').forEach(function(btn){
+    btn.addEventListener('click',function(){closePanelAndNav(btn.getAttribute('data-pfclose'));});
+  });
+
+  root.querySelectorAll('.pf-panel').forEach(function(panel){
+    panel.addEventListener('click',function(e){
+      if(e.target===panel){
+        panel.classList.remove('open');
+        history.pushState(null,null,window.location.pathname+window.location.search);
+        openNav();
+      }
+    });
+  });
+
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape'){
+      var anyOpen=false;
+      root.querySelectorAll('.pf-panel').forEach(function(p){if(p.classList.contains('open'))anyOpen=true;});
+      if(anyOpen){closeAllPanels();history.pushState(null,null,window.location.pathname+window.location.search);openNav();}
+      else{closeNav();}
     }
   });
-  epkObserver.observe(epkPanel,{attributes:true,attributeFilter:['class']});
-}
 
-var bf=document.getElementById('booking-form');
-if(bf){
-bf.addEventListener('submit',function(e){e.preventDefault();var st=document.getElementById('pf-form-status');fetch('https://formspree.io/f/xnjyqzwe',{method:'POST',body:new FormData(bf),headers:{'Accept':'application/json'}}).then(function(r){if(r.ok){st.textContent="Enquiry sent — we'll be in touch soon.";st.style.display='block';bf.reset();}else{st.textContent='Something went wrong. Please try again.';st.style.display='block';}}).catch(function(){st.textContent='Something went wrong. Please try again.';st.style.display='block';});});
-var rl=bf.querySelectorAll('input[type="radio"]');
-rl.forEach(function(radio){radio.addEventListener('change',function(){rl.forEach(function(r){var l=bf.querySelector('label[for="'+r.id+'"]');if(l){l.style.color='rgba(255,255,255,0.5)';l.style.borderColor='rgba(255,255,255,0.12)';l.style.background='transparent';}});var s=bf.querySelector('label[for="'+this.id+'"]');if(s){s.style.color='#c9a84c';s.style.borderColor='rgba(201,168,76,0.7)';s.style.background='rgba(201,168,76,0.08)';}});});
-}
+  // EPK PDF.js viewer - load only when panel opens
+  var epkPanel=document.getElementById('pf-panel-epk');
+  if(epkPanel){
+    var epkObserver=new MutationObserver(function(){
+      if(epkPanel.classList.contains('open')){
+        if(typeof pdfjsLib!=='undefined'){
+          epkLoad();
+        } else {
+          var wait=setInterval(function(){
+            if(typeof pdfjsLib!=='undefined'){
+              clearInterval(wait);
+              epkLoad();
+            }
+          },100);
+        }
+      }
+    });
+    epkObserver.observe(epkPanel,{attributes:true,attributeFilter:['class']});
+  }
+
+  var bf=document.getElementById('booking-form');
+  if(bf){
+    bf.addEventListener('submit',function(e){e.preventDefault();var st=document.getElementById('pf-form-status');fetch('https://formspree.io/f/xnjyqzwe',{method:'POST',body:new FormData(bf),headers:{'Accept':'application/json'}}).then(function(r){if(r.ok){st.textContent="Enquiry sent — we'll be in touch soon.";st.style.display='block';bf.reset();}else{st.textContent='Something went wrong. Please try again.';st.style.display='block';}}).catch(function(){st.textContent='Something went wrong. Please try again.';st.style.display='block';});});
+    var rl=bf.querySelectorAll('input[type="radio"]');
+    rl.forEach(function(radio){radio.addEventListener('change',function(){rl.forEach(function(r){var l=bf.querySelector('label[for="'+r.id+'"]');if(l){l.style.color='rgba(255,255,255,0.5)';l.style.borderColor='rgba(255,255,255,0.12)';l.style.background='transparent';}});var s=bf.querySelector('label[for="'+this.id+'"]');if(s){s.style.color='#c9a84c';s.style.borderColor='rgba(201,168,76,0.7)';s.style.background='rgba(201,168,76,0.08)';}});});
+  }
+
 },100);
