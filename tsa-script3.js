@@ -26,6 +26,10 @@
 
   function closeNav() { root.classList.remove("nav-active"); }
 
+  function closeAllPanels() {
+    root.querySelectorAll(".pf-panel").forEach(function(p) { p.classList.remove("open"); });
+  }
+
   hub.addEventListener("click", function() {
     root.classList.add("nav-active");
   });
@@ -39,28 +43,53 @@
       e.preventDefault();
       closeNav();
       var id = link.getAttribute("data-pfpanel");
+      var slug = id.replace("pf-panel-", "");
+      history.pushState({ panel: slug }, "", "/" + slug);
       setTimeout(function() { document.getElementById(id).classList.add("open"); }, 200);
     });
   });
 
   root.querySelectorAll("[data-pfclose]").forEach(function(btn) {
     btn.addEventListener("click", function() {
-      document.getElementById(btn.getAttribute("data-pfclose")).classList.remove("open");
+      var id = btn.getAttribute("data-pfclose");
+      document.getElementById(id).classList.remove("open");
+      history.pushState({}, "", "/");
     });
   });
 
   root.querySelectorAll(".pf-panel").forEach(function(panel) {
     panel.addEventListener("click", function(e) {
-      if (e.target === panel) panel.classList.remove("open");
+      if (e.target === panel) {
+        panel.classList.remove("open");
+        history.pushState({}, "", "/");
+      }
     });
   });
 
   document.addEventListener("keydown", function(e) {
     if (e.key === "Escape") {
       closeNav();
-      root.querySelectorAll(".pf-panel").forEach(function(p) { p.classList.remove("open"); });
+      closeAllPanels();
+      history.pushState({}, "", "/");
     }
   });
+
+  window.addEventListener("popstate", function(e) {
+    closeAllPanels();
+    if (e.state && e.state.panel) {
+      var panel = document.getElementById("pf-panel-" + e.state.panel);
+      if (panel) panel.classList.add("open");
+    }
+  });
+
+  // Open correct panel on page load if URL has a slug
+  (function() {
+    var slug = window.location.pathname.replace(/^\//, "").replace(/\/$/, "");
+    if (slug) {
+      var panel = document.getElementById("pf-panel-" + slug);
+      if (panel) panel.classList.add("open");
+    }
+  })();
 
   var bookingForm = document.getElementById("booking-form");
   if (bookingForm) {
@@ -86,10 +115,10 @@
       });
     });
 
-    var radioLabels = bookingForm.querySelectorAll('input[type="radio"]');
-    radioLabels.forEach(function(radio) {
+    var radioInputs = bookingForm.querySelectorAll('input[type="radio"]');
+    radioInputs.forEach(function(radio) {
       radio.addEventListener("change", function() {
-        radioLabels.forEach(function(r) {
+        radioInputs.forEach(function(r) {
           var lbl = bookingForm.querySelector('label[for="' + r.id + '"]');
           if (lbl) {
             lbl.style.color = "rgba(255,255,255,0.5)";
