@@ -61,52 +61,52 @@
       closeNav();
       root.querySelectorAll(".pf-panel").forEach(function(p) { p.classList.remove("open"); });
     }
+  }); // ← this closing }); was missing, causing everything below to nest inside keydown
 
-var bookingForm = document.getElementById("booking-form");
-if (bookingForm) {
-  bookingForm.addEventListener("submit", function(e) {
-    e.preventDefault();
-    var status = document.getElementById("pf-form-status");
-    fetch("https://formspree.io/f/xnjyqzwe", {
-      method: "POST",
-      body: new FormData(bookingForm),
-      headers: { "Accept": "application/json" }
-    }).then(function(res) {
-      if (res.ok) {
-        status.textContent = "Enquiry sent — we'll be in touch soon.";
-        status.style.display = "block";
-        bookingForm.reset();
-      } else {
+  var bookingForm = document.getElementById("booking-form");
+  if (bookingForm) {
+    bookingForm.addEventListener("submit", function(e) {
+      e.preventDefault();
+      var status = document.getElementById("pf-form-status");
+      fetch("https://formspree.io/f/xnjyqzwe", {
+        method: "POST",
+        body: new FormData(bookingForm),
+        headers: { "Accept": "application/json" }
+      }).then(function(res) {
+        if (res.ok) {
+          status.textContent = "Enquiry sent — we'll be in touch soon.";
+          status.style.display = "block";
+          bookingForm.reset();
+        } else {
+          status.textContent = "Something went wrong. Please try again.";
+          status.style.display = "block";
+        }
+      }).catch(function() {
         status.textContent = "Something went wrong. Please try again.";
         status.style.display = "block";
-      }
-    }).catch(function() {
-      status.textContent = "Something went wrong. Please try again.";
-      status.style.display = "block";
+      });
     });
-  });
 
-  var radioLabels = bookingForm.querySelectorAll('input[type="radio"]');
-  radioLabels.forEach(function(radio) {
-    radio.addEventListener("change", function() {
-      radioLabels.forEach(function(r) {
-        var lbl = bookingForm.querySelector('label[for="' + r.id + '"]');
-        if (lbl) {
-          lbl.style.color = "rgba(255,255,255,0.5)";
-          lbl.style.borderColor = "rgba(255,255,255,0.12)";
-          lbl.style.background = "transparent";
+    var radioLabels = bookingForm.querySelectorAll('input[type="radio"]');
+    radioLabels.forEach(function(radio) {
+      radio.addEventListener("change", function() {
+        radioLabels.forEach(function(r) {
+          var lbl = bookingForm.querySelector('label[for="' + r.id + '"]');
+          if (lbl) {
+            lbl.style.color = "rgba(255,255,255,0.5)";
+            lbl.style.borderColor = "rgba(255,255,255,0.12)";
+            lbl.style.background = "transparent";
+          }
+        });
+        var selected = bookingForm.querySelector('label[for="' + this.id + '"]');
+        if (selected) {
+          selected.style.color = "var(--gold)";
+          selected.style.borderColor = "rgba(201,168,76,0.7)";
+          selected.style.background = "rgba(201,168,76,0.08)";
         }
       });
-      var selected = bookingForm.querySelector('label[for="' + this.id + '"]');
-      if (selected) {
-        selected.style.color = "var(--gold)";
-        selected.style.borderColor = "rgba(201,168,76,0.7)";
-        selected.style.background = "rgba(201,168,76,0.08)";
-      }
     });
-  });
-}
+  }
 
-  });
 })();
 </script>
