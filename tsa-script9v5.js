@@ -1,7 +1,8 @@
-document.addEventListener("DOMContentLoaded", function() {
-
+(function() {
   var root = document.getElementById("portfolio-root");
   var hub  = document.getElementById("pf-hub");
+
+  if (!root || !hub) return;
 
   var items = [
     { id: "pf-ni-about",    angle: -90  },
@@ -75,9 +76,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
   root.querySelectorAll(".pf-panel").forEach(function(panel) {
     panel.addEventListener("click", function(e) {
-      if (e.target === panel) {
-        closePanel(panel.id);
-      }
+      if (e.target === panel) closePanel(panel.id);
     });
   });
 
@@ -156,9 +155,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
   document.addEventListener("click", function(e) {
     var trigger = e.target.closest(".epk-accordion-trigger");
-    if (trigger) {
-      trigger.parentElement.classList.toggle("open");
-    }
+    if (trigger) trigger.parentElement.classList.toggle("open");
   });
 
-});
+})();
