@@ -1,8 +1,6 @@
 (function() {
-  var root = document.getElementById("portfolio-root");
-  var hub  = document.getElementById("pf-hub");
-
-  if (!root || !hub) return;
+  var root      = document.getElementById("portfolio-root");
+  var hub       = document.getElementById("pf-hub");
 
   var items = [
     { id: "pf-ni-about",    angle: -90  },
@@ -76,7 +74,9 @@
 
   root.querySelectorAll(".pf-panel").forEach(function(panel) {
     panel.addEventListener("click", function(e) {
-      if (e.target === panel) closePanel(panel.id);
+      if (e.target === panel) {
+        closePanel(panel.id);
+      }
     });
   });
 
