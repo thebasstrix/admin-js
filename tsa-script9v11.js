@@ -1,4 +1,3 @@
-<script>
 (function() {
   var root      = document.getElementById("portfolio-root");
   var hub       = document.getElementById("pf-hub");
@@ -109,4 +108,3 @@ if (bookingForm) {
 
   });
 })();
-</script>
