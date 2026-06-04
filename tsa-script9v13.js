@@ -1,4 +1,5 @@
-(function() {
+setTimeout(function() {
+
   var root = document.getElementById("portfolio-root");
   var hub  = document.getElementById("pf-hub");
 
@@ -122,4 +123,4 @@
     });
   }
 
-})();
+}, 100);
