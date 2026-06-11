@@ -62,7 +62,10 @@ uploadBox.addEventListener('dragover', e => { e.preventDefault(); uploadBox.clas
 uploadBox.addEventListener('dragleave', () => uploadBox.classList.remove('dragover'));
 uploadBox.addEventListener('drop', e => {
   e.preventDefault(); uploadBox.classList.remove('dragover');
-  if (e.dataTransfer.files[0]) { fileInput.files = e.dataTransfer.files; fileNameDisplay.textContent = '✓ ' + e.dataTransfer.files[0].name; }
+  if (e.dataTransfer.files[0]) {
+    fileInput.files = e.dataTransfer.files;
+    fileNameDisplay.textContent = '✓ ' + e.dataTransfer.files[0].name;
+  }
 });
 
 photoInput.addEventListener('change', () => {
@@ -73,7 +76,10 @@ photoUploadBox.addEventListener('dragover', e => { e.preventDefault(); photoUplo
 photoUploadBox.addEventListener('dragleave', () => photoUploadBox.classList.remove('dragover'));
 photoUploadBox.addEventListener('drop', e => {
   e.preventDefault(); photoUploadBox.classList.remove('dragover');
-  if (e.dataTransfer.files[0]) { photoInput.files = e.dataTransfer.files; photoNameDisplay.textContent = '✓ ' + e.dataTransfer.files[0].name; }
+  if (e.dataTransfer.files[0]) {
+    photoInput.files = e.dataTransfer.files;
+    photoNameDisplay.textContent = '✓ ' + e.dataTransfer.files[0].name;
+  }
 });
 
 function showErr(id, show) {
@@ -139,8 +145,14 @@ async function uploadFile(file, progressBar, pctEl, processingMsg, btn) {
 
 async function handleSubmit() {
   const file = fileInput.files[0];
+
   if (!file) { showErr('err-file', true); return; }
   showErr('err-file', false);
+
+  if (file.size > 2 * 1024 * 1024 * 1024) {
+    alert('Your mix file exceeds the 2GB limit. Please compress or trim it before uploading.');
+    return;
+  }
 
   const btn = document.getElementById('submit-btn');
   const backBtn = document.getElementById('back-btn-2');
