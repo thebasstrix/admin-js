@@ -1,24 +1,24 @@
 function goBack() {
-  document.getElementById('page-1').classList.remove('show');
-  document.getElementById('steps-nav').classList.remove('show');
-  document.getElementById('form-logo-wrap').classList.remove('show');
-  document.getElementById('cover-page').classList.remove('hide');
+  document.getElementById('page-1').style.display = 'none';
+  document.getElementById('steps-nav').style.display = 'none';
+  document.getElementById('form-logo-wrap').style.display = 'none';
+  document.getElementById('cover-page').style.display = 'block';
   document.querySelector('.sc').classList.remove('opaque');
   window.scrollTo(0, 0);
 }
 
 function startForm() {
-  document.getElementById('cover-page').classList.add('hide');
-  document.getElementById('form-logo-wrap').classList.add('show');
-  document.getElementById('steps-nav').classList.add('show');
-  document.getElementById('page-1').classList.add('show');
+  document.getElementById('cover-page').style.display = 'none';
+  document.getElementById('form-logo-wrap').style.display = 'block';
+  document.getElementById('steps-nav').style.display = 'flex';
+  document.getElementById('page-1').style.display = 'block';
   document.querySelector('.sc').classList.add('opaque');
   window.scrollTo(0, 0);
 }
 
 function goToPage1() {
-  document.getElementById('page-2').classList.remove('show');
-  document.getElementById('page-1').classList.add('show');
+  document.getElementById('page-2').style.display = 'none';
+  document.getElementById('page-1').style.display = 'block';
   document.getElementById('c1').className = 'step-circle active';
   document.getElementById('s2').className = 'step inactive';
   document.getElementById('c2').className = 'step-circle';
@@ -39,8 +39,8 @@ function goToPage2() {
 
   if (!valid) return;
 
-  document.getElementById('page-1').classList.remove('show');
-  document.getElementById('page-2').classList.add('show');
+  document.getElementById('page-1').style.display = 'none';
+  document.getElementById('page-2').style.display = 'block';
   document.getElementById('c1').className = 'step-circle done';
   document.getElementById('s2').className = 'step';
   document.getElementById('c2').className = 'step-circle active';
@@ -213,8 +213,8 @@ async function handleSubmit() {
       document.getElementById('c2').className = 'step-circle done';
       document.getElementById('s3').className = 'step';
       document.getElementById('c3').className = 'step-circle active';
-      document.getElementById('page-2').classList.remove('show');
-      document.getElementById('thanks-screen').classList.add('show');
+      document.getElementById('page-2').style.display = 'none';
+      document.getElementById('thanks-screen').style.display = 'block';
       document.getElementById('thanks-msg').textContent = 'Thanks ' + payload.name + ' — we\'ll give it a listen and be in touch.';
       window.scrollTo(0, 0);
     } else {
