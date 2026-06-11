@@ -1,24 +1,24 @@
 function goBack() {
-  document.getElementById('page-1').style.display = 'none';
-  document.getElementById('steps-nav').style.display = 'none';
-  document.getElementById('form-logo-wrap').style.display = 'none';
-  document.getElementById('cover-page').style.display = 'block';
+  document.getElementById('page-1').classList.remove('show');
+  document.getElementById('steps-nav').classList.remove('show');
+  document.getElementById('form-logo-wrap').classList.remove('show');
+  document.getElementById('cover-page').classList.remove('hide');
   document.querySelector('.sc').classList.remove('opaque');
   window.scrollTo(0, 0);
 }
 
 function startForm() {
-  document.getElementById('cover-page').style.display = 'none';
-  document.getElementById('form-logo-wrap').style.display = 'block';
-  document.getElementById('steps-nav').style.display = 'flex';
-  document.getElementById('page-1').style.display = 'block';
+  document.getElementById('cover-page').classList.add('hide');
+  document.getElementById('form-logo-wrap').classList.add('show');
+  document.getElementById('steps-nav').classList.add('show');
+  document.getElementById('page-1').classList.add('show');
   document.querySelector('.sc').classList.add('opaque');
   window.scrollTo(0, 0);
 }
 
 function goToPage1() {
-  document.getElementById('page-2').style.display = 'none';
-  document.getElementById('page-1').style.display = 'block';
+  document.getElementById('page-2').classList.remove('show');
+  document.getElementById('page-1').classList.add('show');
   document.getElementById('c1').className = 'step-circle active';
   document.getElementById('s2').className = 'step inactive';
   document.getElementById('c2').className = 'step-circle';
@@ -39,8 +39,8 @@ function goToPage2() {
 
   if (!valid) return;
 
-  document.getElementById('page-1').style.display = 'none';
-  document.getElementById('page-2').style.display = 'block';
+  document.getElementById('page-1').classList.remove('show');
+  document.getElementById('page-2').classList.add('show');
   document.getElementById('c1').className = 'step-circle done';
   document.getElementById('s2').className = 'step';
   document.getElementById('c2').className = 'step-circle active';
@@ -53,13 +53,13 @@ function showErr(id, show) {
 
 function initForm() {
   const fileInput = document.getElementById('mix_file');
+  if (!fileInput) return;
+
   const uploadBox = document.getElementById('upload-box');
   const fileNameDisplay = document.getElementById('file-name-display');
   const photoInput = document.getElementById('photo_file');
   const photoUploadBox = document.getElementById('photo-upload-box');
   const photoNameDisplay = document.getElementById('photo-name-display');
-
-  if (!fileInput) return;
 
   fileInput.addEventListener('change', () => {
     if (fileInput.files[0]) fileNameDisplay.textContent = '✓ ' + fileInput.files[0].name;
@@ -213,9 +213,9 @@ async function handleSubmit() {
       document.getElementById('c2').className = 'step-circle done';
       document.getElementById('s3').className = 'step';
       document.getElementById('c3').className = 'step-circle active';
-      document.getElementById('page-2').style.display = 'none';
+      document.getElementById('page-2').classList.remove('show');
+      document.getElementById('thanks-screen').classList.add('show');
       document.getElementById('thanks-msg').textContent = 'Thanks ' + payload.name + ' — we\'ll give it a listen and be in touch.';
-      document.getElementById('thanks-screen').style.display = 'block';
       window.scrollTo(0, 0);
     } else {
       const data = await resp.json();
@@ -234,7 +234,6 @@ async function handleSubmit() {
   }
 }
 
-// Initialise drag/drop listeners once DOM is ready
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initForm);
 } else {
