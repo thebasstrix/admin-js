@@ -32,6 +32,10 @@ scInput.addEventListener('blur', () => {
   scPreview.innerHTML = `<iframe width="100%" height="120" scrolling="no" frameborder="no" allow="autoplay" src="${buildEmbedUrl(url)}"></iframe>`;
 });
 
+// ── New-badge checkboxes ──
+const epNewBadge = document.getElementById('ep-new-badge');
+const editNewBadge = document.getElementById('edit-new-badge');
+
 // ── Helpers ──
 function buildEmbedUrl(trackUrl) {
   return `https://w.soundcloud.com/player/?url=${encodeURIComponent(trackUrl)}&color=%230c260c&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true`;
@@ -90,7 +94,7 @@ function renderShowList() {
   list.innerHTML = allShows.map(s => `
     <div class="ru-show-row" data-slug="${s.slug}">
       <div class="ru-show-info">
-        <div class="ru-show-title">${s.title}</div>
+        <div class="ru-show-title">${s.title}${s.is_new ? '<span class="ru-show-new-pill">New</span>' : ''}</div>
         <div class="ru-show-meta">${fmtDate(s.broadcast_date)}${s.host ? ' · ' + s.host : ''}${s.duration ? ' · ' + s.duration : ''}</div>
       </div>
       <div class="ru-show-actions">
@@ -138,6 +142,8 @@ function openEdit(slug) {
   document.getElementById('edit-time').value     = show.show_time || '';
   document.getElementById('edit-thumb').value    = show.thumbnail_url || '';
   document.getElementById('edit-desc').value     = show.description || '';
+  editNewBadge.checked = !!show.is_new;
+  editNewBadge.dispatchEvent(new Event('change'));
 
   // Reverse-engineer SC track URL from embed URL for display
   const scEmbed = show.soundcloud_url || '';
@@ -170,6 +176,7 @@ document.getElementById('ru-modal-save').addEventListener('click', async () => {
   const scUrl    = document.getElementById('edit-sc-url').value.trim();
   const thumb    = document.getElementById('edit-thumb').value.trim();
   const desc     = document.getElementById('edit-desc').value.trim();
+  const isNew    = editNewBadge.checked;
 
   if (!title || !num || !date) {
     setStatus('ru-edit-status', 'error', '✗ Title, episode number and date are required.');
@@ -192,6 +199,7 @@ document.getElementById('ru-modal-save').addEventListener('click', async () => {
     show_time: showTime || null,
     thumbnail_url: thumb || null,
     description: desc || null,
+    is_new: isNew,
   };
 
   if (scUrl.startsWith('https://soundcloud.com/')) {
@@ -242,6 +250,7 @@ document.getElementById('ru-submit-btn').addEventListener('click', async () => {
   const scUrl    = scInput.value.trim();
   const thumb    = document.getElementById('ep-thumb').value.trim();
   const desc     = document.getElementById('ep-desc').value.trim();
+  const isNew    = epNewBadge.checked;
 
   if (!title || !num || !date || !scUrl) {
     setStatus('ru-add-status', 'error', '✗ Please fill in title, episode number, date and SoundCloud URL.');
@@ -273,7 +282,8 @@ document.getElementById('ru-submit-btn').addEventListener('click', async () => {
     soundcloud_track_title: scUrl.split('/').pop().replace(/-/g, ' '),
     host,
     show_time: showTime,
-    description: desc || null
+    description: desc || null,
+    is_new: isNew
   };
 
   const btn = document.getElementById('ru-submit-btn');
@@ -321,6 +331,8 @@ function resetForm() {
   scInput.value = '';
   document.getElementById('ep-thumb').value = 'https://od.lk/s/NzdfNjY3NzMzNDFf/vennrad.webp';
   document.getElementById('ep-desc').value = '';
+  epNewBadge.checked = false;
+  epNewBadge.dispatchEvent(new Event('change'));
   scPreview.style.display = 'none';
   document.getElementById('ru-add-status').className = 'ru-status';
 }
