@@ -32,9 +32,11 @@ scInput.addEventListener('blur', () => {
   scPreview.innerHTML = `<iframe width="100%" height="120" scrolling="no" frameborder="no" allow="autoplay" src="${buildEmbedUrl(url)}"></iframe>`;
 });
 
-// ── New-badge checkboxes ──
+// ── New-badge / Featured checkboxes ──
 const epNewBadge = document.getElementById('ep-new-badge');
 const editNewBadge = document.getElementById('edit-new-badge');
+const epFeatured = document.getElementById('ep-featured');
+const editFeatured = document.getElementById('edit-featured');
 
 // ── Helpers ──
 function buildEmbedUrl(trackUrl) {
@@ -54,6 +56,22 @@ function setStatus(id, type, msg) {
 function fmtDate(d) {
   if (!d) return '';
   return new Date(d).toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'2-digit'});
+}
+
+// Unfeature every other show (or every show, if exceptSlug is null) so only one is ever featured
+async function clearOtherFeatured(exceptSlug) {
+  const url = exceptSlug
+    ? `${SUPABASE_URL}/rest/v1/radio_shows?is_featured=eq.true&slug=neq.${encodeURIComponent(exceptSlug)}`
+    : `${SUPABASE_URL}/rest/v1/radio_shows?is_featured=eq.true`;
+  await fetch(url, {
+    method: 'PATCH',
+    headers: {
+      apikey: SUPABASE_SERVICE_KEY,
+      Authorization: `Bearer ${SUPABASE_SERVICE_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ is_featured: false })
+  });
 }
 
 // ── EDIT / SVG icons ──
@@ -94,7 +112,7 @@ function renderShowList() {
   list.innerHTML = allShows.map(s => `
     <div class="ru-show-row" data-slug="${s.slug}">
       <div class="ru-show-info">
-        <div class="ru-show-title">${s.title}${s.is_new ? '<span class="ru-show-new-pill">New</span>' : ''}</div>
+        <div class="ru-show-title">${s.title}${s.is_new ? '<span class="ru-show-new-pill">New</span>' : ''}${s.is_featured ? '<span class="ru-show-new-pill" style="background:#2244aa">Featured</span>' : ''}</div>
         <div class="ru-show-meta">${fmtDate(s.broadcast_date)}${s.host ? ' · ' + s.host : ''}${s.duration ? ' · ' + s.duration : ''}</div>
       </div>
       <div class="ru-show-actions">
@@ -144,6 +162,7 @@ function openEdit(slug) {
   document.getElementById('edit-desc').value     = show.description || '';
   editNewBadge.checked = !!show.is_new;
   editNewBadge.dispatchEvent(new Event('change'));
+  editFeatured.checked = !!show.is_featured;
 
   // Reverse-engineer SC track URL from embed URL for display
   const scEmbed = show.soundcloud_url || '';
@@ -177,6 +196,7 @@ document.getElementById('ru-modal-save').addEventListener('click', async () => {
   const thumb    = document.getElementById('edit-thumb').value.trim();
   const desc     = document.getElementById('edit-desc').value.trim();
   const isNew    = editNewBadge.checked;
+  const isFeatured = editFeatured.checked;
 
   if (!title || !num || !date) {
     setStatus('ru-edit-status', 'error', '✗ Title, episode number and date are required.');
@@ -200,6 +220,7 @@ document.getElementById('ru-modal-save').addEventListener('click', async () => {
     thumbnail_url: thumb || null,
     description: desc || null,
     is_new: isNew,
+    is_featured: isFeatured,
   };
 
   if (scUrl.startsWith('https://soundcloud.com/')) {
@@ -212,6 +233,10 @@ document.getElementById('ru-modal-save').addEventListener('click', async () => {
   setStatus('ru-edit-status', 'loading', 'Saving...');
 
   try {
+    if (isFeatured) {
+      await clearOtherFeatured(slug);
+    }
+
     const res = await fetch(
       `${SUPABASE_URL}/rest/v1/radio_shows?slug=eq.${encodeURIComponent(slug)}`,
       {
@@ -251,6 +276,7 @@ document.getElementById('ru-submit-btn').addEventListener('click', async () => {
   const thumb    = document.getElementById('ep-thumb').value.trim();
   const desc     = document.getElementById('ep-desc').value.trim();
   const isNew    = epNewBadge.checked;
+  const isFeatured = epFeatured.checked;
 
   if (!title || !num || !date || !scUrl) {
     setStatus('ru-add-status', 'error', '✗ Please fill in title, episode number, date and SoundCloud URL.');
@@ -283,7 +309,8 @@ document.getElementById('ru-submit-btn').addEventListener('click', async () => {
     host,
     show_time: showTime,
     description: desc || null,
-    is_new: isNew
+    is_new: isNew,
+    is_featured: isFeatured
   };
 
   const btn = document.getElementById('ru-submit-btn');
@@ -291,6 +318,10 @@ document.getElementById('ru-submit-btn').addEventListener('click', async () => {
   setStatus('ru-add-status', 'loading', 'Saving to Supabase...');
 
   try {
+    if (isFeatured) {
+      await clearOtherFeatured(null);
+    }
+
     const res = await fetch(`${SUPABASE_URL}/rest/v1/radio_shows`, {
       method: 'POST',
       headers: {
@@ -333,6 +364,7 @@ function resetForm() {
   document.getElementById('ep-desc').value = '';
   epNewBadge.checked = false;
   epNewBadge.dispatchEvent(new Event('change'));
+  epFeatured.checked = false;
   scPreview.style.display = 'none';
   document.getElementById('ru-add-status').className = 'ru-status';
 }
